@@ -12,6 +12,7 @@ import { HyperliquidError } from "./hyperliquid/client.js";
 import { runPipeline, UserFacingError } from "./pipeline.js";
 
 const PORT = Number(process.env.PORT ?? 3001);
+const HOST = process.env.HOST ?? "127.0.0.1";
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const MAX_QUEUED = 5;
 
@@ -97,5 +98,5 @@ if (existsSync(webDist)) {
   await app.register(fastifyStatic, { root: webDist, prefix: "/", decorateReply: false });
 }
 
-await app.listen({ port: PORT, host: "127.0.0.1" });
+await app.listen({ port: PORT, host: HOST });
 console.log(`API listening on ${BASE_URL}`);
