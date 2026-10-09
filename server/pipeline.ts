@@ -23,7 +23,7 @@ export async function runPipeline(
   jobId: string,
   address: string,
   options: JobOptions,
-  baseUrl: string,
+  _baseUrl: string,
   report: Report,
   onStoryboard: (storyboard: PipelineResult["storyboard"], stats: PipelineResult["stats"]) => void,
 ): Promise<PipelineResult> {
@@ -59,7 +59,8 @@ export async function runPipeline(
     await narrateStoryboard(
       storyboard,
       path.join(jobDir, "audio"),
-      (file) => `${baseUrl}/files/${jobId}/audio/${file}`,
+      options.language,
+      (file) => `/files/${jobId}/audio/${file}`,
       (n, total) => report("narrating", 0.32 + 0.13 * (n / total), `Recording narration (${n}/${total})`),
     );
   }
@@ -70,7 +71,7 @@ export async function runPipeline(
 
   report("rendering", 0.45, "Rendering video");
   const videoFile = path.join(jobDir, "journey.mp4");
-  await renderVideo(storyboard, videoFile, (f) => report("rendering", 0.45 + 0.55 * f, `Rendering video ${Math.round(f * 100)}%`));
+  await renderVideo(storyboard, videoFile, options.language, (f) => report("rendering", 0.45 + 0.55 * f, `Rendering video ${Math.round(f * 100)}%`));
 
   return { storyboard, videoFile, stats };
 }

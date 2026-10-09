@@ -209,6 +209,7 @@ export interface Storyboard {
 }
 
 export type JobStatus = "queued" | "fetching" | "analyzing" | "narrating" | "rendering" | "done" | "error";
+export type VideoLanguage = "en" | "zh";
 
 export interface JobInfo {
   id: string;
@@ -228,6 +229,7 @@ export interface JobOptions {
   /** Target video length in seconds (clamped 60..180) */
   targetSeconds: number;
   tts: boolean;
+  language: VideoLanguage;
 }
 
 export const VIDEO_FPS = 30;

@@ -2,7 +2,7 @@ import path from "node:path";
 import { existsSync } from "node:fs";
 import { bundle } from "@remotion/bundler";
 import { ensureBrowser, renderMedia, selectComposition } from "@remotion/renderer";
-import type { Storyboard } from "../shared/types";
+import type { Storyboard, VideoLanguage } from "../shared/types";
 
 const ENTRY = path.resolve(import.meta.dirname, "../video/index.ts");
 const COMPOSITION_ID = "Journey";
@@ -36,10 +36,11 @@ function getBundle(): Promise<string> {
 export async function renderVideo(
   storyboard: Storyboard,
   outputLocation: string,
+  language: VideoLanguage = "en",
   onProgress?: (fraction: number) => void,
 ): Promise<void> {
   const serveUrl = await getBundle();
-  const inputProps = { storyboard };
+  const inputProps = { storyboard, subtitleLanguage: language };
   const browserExecutable = localBrowser;
   const composition = await selectComposition({ serveUrl, id: COMPOSITION_ID, inputProps, browserExecutable });
   await renderMedia({

@@ -2,15 +2,18 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import { parseBuffer } from "music-metadata";
-import type { Storyboard } from "../../shared/types.js";
+import type { Storyboard, VideoLanguage } from "../../shared/types.js";
 import { applyNarrationDurations } from "./storyboard.js";
 
-const VOICE = "en-US-AndrewNeural";
+const VOICES: Record<VideoLanguage, string> = {
+  en: "en-US-AndrewNeural",
+  zh: "zh-CN-XiaoxiaoNeural",
+};
 
-async function synthesize(text: string): Promise<Buffer> {
+async function synthesize(text: string, language: VideoLanguage): Promise<Buffer> {
   const tts = new MsEdgeTTS();
   try {
-    await tts.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+    await tts.setMetadata(VOICES[language], OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
     const { audioStream } = tts.toStream(text);
     const chunks: Buffer[] = [];
     for await (const chunk of audioStream) chunks.push(chunk as Buffer);
@@ -27,6 +30,7 @@ async function synthesize(text: string): Promise<Buffer> {
 export async function narrateStoryboard(
   board: Storyboard,
   dir: string,
+  language: VideoLanguage,
   audioUrl: (file: string) => string,
   onProgress?: (done: number, total: number) => void,
 ): Promise<{ board: Storyboard; failures: number }> {
@@ -38,7 +42,8 @@ export async function narrateStoryboard(
   for (const scene of board.scenes) {
     try {
       let buf: Buffer | null = null;
-      for (let attempt = 0; attempt < 2 && !buf?.length; attempt++) buf = await synthesize(scene.narration);
+      const narration = language === "zh" ? scene.narrationZh ?? scene.narration : scene.narration;
+      for (let attempt = 0; attempt < 2 && !buf?.length; attempt++) buf = await synthesize(narration, language);
       if (!buf?.length) throw new Error("empty audio");
       const meta = await parseBuffer(buf, "audio/mpeg");
       const file = `${scene.id}.mp3`;

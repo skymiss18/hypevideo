@@ -1,9 +1,6 @@
-import { Player } from "@remotion/player";
 import { useEffect, useRef, useState } from "react";
 import { money, percent } from "../shared/format";
-import { ADDRESS_RE, VIDEO_FPS, VIDEO_HEIGHT, VIDEO_WIDTH, type JobInfo } from "../shared/types";
-import type { SubtitleLanguage } from "../video/Common";
-import { Journey } from "../video/Journey";
+import { ADDRESS_RE, type JobInfo, type VideoLanguage } from "../shared/types";
 
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -16,9 +13,9 @@ export const App: React.FC = () => {
   const [address, setAddress] = useState("");
   const [hide, setHide] = useState(false);
   const [tts, setTts] = useState(true);
+  const [language, setLanguage] = useState<VideoLanguage>("en");
   const [seconds, setSeconds] = useState(120);
   const [job, setJob] = useState<JobInfo | null>(null);
-  const [subtitleLanguage, setSubtitleLanguage] = useState<SubtitleLanguage>("en");
   const [error, setError] = useState<string | null>(null);
   const timer = useRef<number | undefined>(undefined);
 
@@ -49,41 +46,13 @@ export const App: React.FC = () => {
         await api<JobInfo>("/api/jobs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address: trimmed, hideAmounts: hide, targetSeconds: seconds, tts }),
+          body: JSON.stringify({ address: trimmed, hideAmounts: hide, targetSeconds: seconds, tts, language }),
         }),
       );
     } catch (err) {
       setError((err as Error).message);
     }
   };
-
-  const preview = job?.storyboard ? (
-    <>
-      <div className="preview-heading">
-        <p className="sub">{job.status === "done" ? "Subtitle preview:" : "Live preview while the MP4 renders:"}</p>
-        <div className="language-switch" role="group" aria-label="Subtitle language">
-          <button type="button" className={subtitleLanguage === "en" ? "selected" : ""} onClick={() => setSubtitleLanguage("en")}>
-            English
-          </button>
-          <button type="button" className={subtitleLanguage === "zh" ? "selected" : ""} onClick={() => setSubtitleLanguage("zh")}>
-            中文
-          </button>
-        </div>
-      </div>
-      <div className="player">
-        <Player
-          component={Journey}
-          inputProps={{ storyboard: job.storyboard, subtitleLanguage }}
-          durationInFrames={Math.max(1, job.storyboard.totalFrames)}
-          fps={VIDEO_FPS}
-          compositionWidth={VIDEO_WIDTH}
-          compositionHeight={VIDEO_HEIGHT}
-          controls
-          style={{ width: "100%" }}
-        />
-      </div>
-    </>
-  ) : null;
 
   return (
     <main>
@@ -107,6 +76,13 @@ export const App: React.FC = () => {
           <label>
             <input type="checkbox" checked={tts} onChange={(e) => setTts(e.target.checked)} />
             Voice narration
+          <label>
+            Language
+            <select value={language} onChange={(e) => setLanguage(e.target.value as VideoLanguage)}>
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+            </select>
+          </label>
           </label>
           <label>
             Length
@@ -151,7 +127,6 @@ export const App: React.FC = () => {
               <a className="download" href={job.videoUrl} download={`hyperliquid-${job.address.slice(0, 8)}.mp4`}>
                 Download MP4
               </a>
-              {preview}
             </>
           ) : (
             <>
@@ -159,7 +134,6 @@ export const App: React.FC = () => {
               <div className="bar">
                 <div style={{ width: `${Math.round(job.progress * 100)}%` }} />
               </div>
-              {preview}
             </>
           )}
         </div>

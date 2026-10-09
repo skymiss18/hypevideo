@@ -25,6 +25,7 @@ const body = z.object({
   hideAmounts: z.boolean().default(false),
   targetSeconds: z.number().min(60).max(180).default(120),
   tts: z.boolean().default(true),
+  language: z.enum(["en", "zh"]).default("en"),
 });
 
 function friendlyError(e: unknown): string {
