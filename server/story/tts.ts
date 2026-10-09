@@ -7,7 +7,7 @@ import { applyNarrationDurations } from "./storyboard.js";
 
 const VOICES: Record<VideoLanguage, string> = {
   en: "en-US-AndrewNeural",
-  zh: "zh-CN-XiaoxiaoNeural",
+  zh: "zh-CN-YunxiNeural",
 };
 
 async function synthesize(text: string, language: VideoLanguage): Promise<Buffer> {

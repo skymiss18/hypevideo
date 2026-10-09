@@ -10,7 +10,7 @@ export const theme = {
   red: "#ff4d6d",
   accent: "#6c8cff",
   gold: "#ffcf5c",
-  font: "Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+  font: "Inter, 'Noto Sans SC', 'Segoe UI', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif",
   mono: "'JetBrains Mono', 'Cascadia Mono', Consolas, monospace",
 } as const;
 
