@@ -23,7 +23,7 @@ export async function runPipeline(
   jobId: string,
   address: string,
   options: JobOptions,
-  _baseUrl: string,
+  baseUrl: string,
   report: Report,
   onStoryboard: (storyboard: PipelineResult["storyboard"], stats: PipelineResult["stats"]) => void,
 ): Promise<PipelineResult> {
@@ -71,7 +71,7 @@ export async function runPipeline(
 
   report("rendering", 0.45, "Rendering video");
   const videoFile = path.join(jobDir, "journey.mp4");
-  await renderVideo(storyboard, videoFile, options.language, (f) => report("rendering", 0.45 + 0.55 * f, `Rendering video ${Math.round(f * 100)}%`));
+  await renderVideo(storyboard, videoFile, options.language, baseUrl, (f) => report("rendering", 0.45 + 0.55 * f, `Rendering video ${Math.round(f * 100)}%`));
 
   return { storyboard, videoFile, stats };
 }

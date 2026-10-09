@@ -37,10 +37,18 @@ export async function renderVideo(
   storyboard: Storyboard,
   outputLocation: string,
   language: VideoLanguage = "en",
+  baseUrl = "http://127.0.0.1:3001",
   onProgress?: (fraction: number) => void,
 ): Promise<void> {
   const serveUrl = await getBundle();
-  const inputProps = { storyboard, subtitleLanguage: language };
+  const renderStoryboard: Storyboard = {
+    ...storyboard,
+    scenes: storyboard.scenes.map((scene) => ({
+      ...scene,
+      audioUrl: scene.audioUrl?.startsWith("/") ? `${baseUrl}${scene.audioUrl}` : scene.audioUrl,
+    })),
+  };
+  const inputProps = { storyboard: renderStoryboard, subtitleLanguage: language };
   const browserExecutable = localBrowser;
   const composition = await selectComposition({ serveUrl, id: COMPOSITION_ID, inputProps, browserExecutable });
   await renderMedia({
